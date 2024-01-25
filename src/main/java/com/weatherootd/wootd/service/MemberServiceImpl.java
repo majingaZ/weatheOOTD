@@ -6,6 +6,7 @@ import com.weatherootd.wootd.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MemberServiceImpl implements MemberService {
@@ -19,6 +20,16 @@ public class MemberServiceImpl implements MemberService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Override
+    public boolean duplicateId (String id) {
+        return !memberRepository.idDuplicate(id);
+    }
+
+    public boolean duplicateNick (String nickname) {
+        return !memberRepository.idDuplicate(nickname);
+    }
+
+    @Transactional
     @Override
     public void joinProcess (MemberDTO memberDTO) {
         Member data = Member.builder()

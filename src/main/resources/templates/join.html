@@ -1,28 +1,145 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:charset="UTF-8">
 <head>
     <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
     <title>회원가입</title>
 </head>
 <body>
-<form th:action="@{/joinProc}" method="post" th:object="${member}" name="joinForm">
-    <p>아이디: </p>
-    <input type="text" th:field="*{id}" placeholder="Id"/><br/>
-    <p>비밀번호: </p>
-    <input type="password" th:field="*{pass}" placeholder="Password"/><br/>
-    <p>이름: </p>
-    <input type="text" th:field="*{name}" placeholder="Name"/><br/>
-    <p>닉네임: </p>
-    <input type="text" th:field="*{nickname}" placeholder="Nickname"/><br/>
-    <p>주소: </p>
-    <input type="text" th:field="*{address}" placeholder="Address"/><br/>
-    <p>생년월일: </p>
-    <input type="text" th:field="*{birth}" placeholder="Birth"/><br/>
-    <p>이메일: </p>
-    <input type="text" th:field="*{email}" placeholder="Email"/><br/>
-    <p>핸드폰: </p>
-    <input type="text" th:field="*{phone}" placeholder="Phone"/><br/>
-    <input type="submit" value="Join"/>
+<form th:action="@{/joinProc}" method="post" th:object="${memberDTO}" name="joinForm">
+    <!-- 이름 -->
+    <div class="form-group">
+        <label for="nickname">이름</label>
+        <input type="text" class="form-control" id="name" name="name" th:field="*{name}" placeholder="이름을 입력하세요">
+    </div>
+
+    <!-- 아이디 입력 -->
+    <div class="form-group">
+        <label for="id">아이디</label>
+        <input type="text" class="form-control" id="id" name="id" th:field="*{id}" placeholder="아이디를 입력하세요">
+        <button type="button" onclick="idCheck()">중복 확인</button>
+        <span id="idCheckMsg" class="message"></span>
+        <div th:if="${#fields.hasErrors('id')}" class="error">
+            <ul>
+                <li th:each="error : ${#fields.errors('id')}" th:text="${error}" />
+            </ul>
+        </div>
+    </div>
+
+    <!-- 비밀번호 입력 -->
+    <div class="form-group">
+        <label for="password">비밀번호</label>
+        <input type="password" class="form-control" id="password" name="password" th:field="*{pass}" placeholder="영문 대소문자/숫자/특수기호 1개 이상 필수 입력">
+        <span th:if="${#fields.hasErrors('pass')}" th:errors="*{pass}" class="error"></span>
+    </div>
+
+    <!-- 비밀번호 확인 -->
+    <div class="form-group">
+        <label for="confirmPassword">비밀번호 확인</label>
+        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="비밀번호를 한 번 더 입력하세요">
+        <span id="passwordMatchError" class="error"></span>
+    </div>
+
+    <!-- 닉네임 -->
+    <div class="form-group">
+        <label for="nickname">닉네임</label>
+        <input type="text" class="form-control" id="nickname" name="nickname" th:field="*{nickname}" placeholder="닉네임을 입력하세요">
+        <button type="button" onclick="nickCheck()">중복 확인</button>
+        <span id="nickCheckMsg" class="message"></span>
+        <span th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="error"></span>
+    </div>
+
+    <!-- 생년월일 -->
+    <div class="form-group">
+        <label for="year">생년월일</label>
+        <select class="form-control" id="year" name="year" th:field="*{year}">
+            <option th:each="year : ${#numbers.sequence(1900, 2024)}" th:value="${year}" th:text="${year}"></option>
+        </select>
+        <label for="year">년</label>
+
+        <select class="form-control" id="month" name="month" th:field="*{month}">
+            <option th:each="month : ${#numbers.sequence(1, 12)}" th:value="${month}" th:text="${month}"></option>
+        </select>
+        <label for="month">월</label>
+
+        <select class="form-control" id="day" name="day" th:field="*{day}">
+            <option th:each="day : ${#numbers.sequence(1, 31)}" th:value="${day}" th:text="${day}"></option>
+        </select>
+        <label for="day">일</label>
+    </div>
+    <input type="hidden" id="birthdate" name="birthdate" th:field="*{birth}" />
+
+    <!-- 이메일 -->
+    <div class="form-group">
+        <label for="address">주소</label>
+        <input type="text" class="form-control" id="address" name="address" th:field="*{address}" placeholder="'~동'까지 입력하세요">
+    </div>
+
+    <!-- 이메일 -->
+    <div class="form-group">
+        <label for="email">이메일</label>
+        <input type="text" class="form-control" id="email" name="email" th:field="*{email}" placeholder="'@' 포함한 이메일 주소">
+    </div>
+
+    <!-- 핸드폰 -->
+    <div class="form-group">
+        <label for="phone">핸드폰번호</label>
+        <input type="text" class="form-control" id="phone" name="phone" th:field="*{phone}" placeholder="'-' 포함한 핸드폰 번호">
+    </div>
+
+    <button type="submit" class="btn btn-primary">가입하기</button>
 </form>
+
+<script th:inline="javascript">
+    $('#year, #month, #day').change(function () {
+        let year = $('#year').val();
+        let month = $('#month').val();
+        let day = $('#day').val();
+
+        console.log('Year:', year);
+        console.log('Month:', month);
+        console.log('Day:', day);
+
+
+        if (year && month && day) {
+            let birthdate = year + '/' + month + '/' + day;
+            $('#birthdate').val(birthdate);
+            console.log('birth: ', birthdate);
+        }
+    });
+    function idCheck() {
+        let userId = $("#id").val();
+
+        $.ajax({
+            type: 'POST',
+            url: '/idCheck',
+            data: {userId: userId},
+            success: function(response) {
+                if (response.duplicateId) {
+                    document.getElementById("idCheckMsg").innerHTML = "사용 중인 아이디입니다.";
+                } else {
+                    document.getElementById("idCheckMsg").innerHTML = "사용 가능한 아이디입니다.";
+                }
+            }
+        });
+    }
+    function nickCheck() {
+        let userNick = $("#nickname").val();
+
+        $.ajax({
+            type: 'POST',
+            url: '/nickCheck',
+            data: {userNick: userNick},
+            success: function(response) {
+                if (response.duplicateId) {
+                    document.getElementById("nickCheckMsg").innerHTML = "사용 중인 닉네임입니다.";
+                } else {
+                    document.getElementById("nickCheckMsg").innerHTML = "사용 가능한 닉네임입니다.";
+                }
+            }
+        });
+    }
+</script>
 </body>
 </html>
