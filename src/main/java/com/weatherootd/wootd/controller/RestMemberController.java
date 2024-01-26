@@ -24,8 +24,8 @@ public class RestMemberController {
     @Autowired
     private MemberRepository memberRepository;
 
-    @PostMapping("/checkDuplicateId")
-    public ResponseEntity<Map<String, Object>> checkDuplicateId(@RequestParam("id") String id) {
+    @PostMapping("/checkId")
+    public ResponseEntity<Map<String, Object>> checkId(@RequestParam("id") String id) {
         Map<String, Object> response = new HashMap<>();
         if (memberService.isIdDuplicated(id)) {
             response.put("message", "사용 중인 아이디입니다.");
