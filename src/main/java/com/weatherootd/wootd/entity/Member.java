@@ -31,6 +31,7 @@ public class Member {
     private String name;
 
     @Column(length = 10)
+    @NotNull
     private String nickname;
 
     @Column(length = 200)

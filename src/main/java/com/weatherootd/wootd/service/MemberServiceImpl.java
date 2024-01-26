@@ -27,38 +27,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void joinProcess(MemberDTO memberDTO) {
-        System.out.println("joinProcess");
-        if (!isValidMemberDTO(memberDTO)) {
-            throw new IllegalArgumentException("Invalid member data");
-        }
-
-        Member data = Member.builder()
-                .role(memberDTO.getRole())
-                .id_type(memberDTO.getId_type())
-                .id(memberDTO.getId())
-                .pass(passwordEncoder.encode(memberDTO.getPass()))
-                .name(memberDTO.getName())
-                .nickname(memberDTO.getNickname())
-                .address(memberDTO.getAddress())
-                .birth(memberDTO.getBirth())
-                .email(memberDTO.getEmail())
-                .phone(memberDTO.getPhone())
-                .build();
-
-        memberRepository.save(data);
+    public boolean isNickDuplicated(String nickname) {
+        return memberRepository.findByNickname(nickname).isPresent();
     }
-    private boolean isValidMemberDTO(MemberDTO memberDTO) {
-        String id = memberDTO.getId();
-        String password = memberDTO.getPass();
-        if (id == null || password == null || id.length() < 6 || password.length() < 8) {
-            return false;
-        }
 
-        if (!id.matches("[a-zA-Z]+") || !password.matches("[a-zA-Z0-9]+")) {
-            return false;
-        }
 
-        return true;
-    }
 }

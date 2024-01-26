@@ -6,5 +6,5 @@ public interface MemberService {
 
     boolean isIdDuplicated(String id);
 
-    void joinProcess(MemberDTO memberDTO);
+    boolean isNickDuplicated(String nickname);
 }
