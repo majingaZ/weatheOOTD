@@ -13,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/wootds")
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -25,6 +26,12 @@ public class MemberController {
         System.out.println("join 실행");
         model.addAttribute("memberDTO", new MemberDTO());
         return "join";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        System.out.println("login 실행");
+        return "login";
     }
 
     @PostMapping("/joinProcess")
@@ -47,7 +54,7 @@ public class MemberController {
                     .build();
 
             memberRepository.save(data);
-            return "redirect:/login";
+            return "redirect:/wootds/login";
         }
     }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:charset="UTF-8">
+<html xmlns:th="http://www.thymeleaf.org" th:charset="UTF-8"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <title>회원가입</title>
@@ -7,7 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
-<form th:action="@{/joinProcess}" method="post" th:object="${memberDTO}" name="joinForm">
+<form th:action="@{/wootds/joinProcess}" method="post" th:object="${memberDTO}" name="joinForm">
     <!-- 이름 -->
     <div class="form-group">
         <label for="nickname">이름</label>
@@ -93,7 +94,7 @@
             var id = $('#id').val();
 
             $.ajax({
-                url: '/checkId',
+                url: '/wootds/checkId',
                 type: 'POST',
                 data: {'id': id},
                 success: function (response) {
@@ -111,7 +112,7 @@
             var nickname = $('#nickname').val();
 
             $.ajax({
-                url: '/checkNick',
+                url: '/wootds/checkNick',
                 type: 'POST',
                 data: {'nickname': nickname},
                 success: function (response) {
@@ -124,23 +125,23 @@
         });
     });
 
-        $(document).ready(function () {
-            $('#year, #month, #day').change(function () {
-                var year = $('#year').val();
-                var month = $('#month').val();
-                var day = $('#day').val();
+    $(document).ready(function () {
+        $('#year, #month, #day').change(function () {
+            var year = $('#year').val();
+            var month = $('#month').val();
+            var day = $('#day').val();
 
-                console.log('Year:', year);
-                console.log('Month:', month);
-                console.log('Day:', day);
+            console.log('Year:', year);
+            console.log('Month:', month);
+            console.log('Day:', day);
 
-                if (year && month && day) {
-                    var birthdate = year + '/' + month + '/' + day;
-                    $('#birthdate').val(birthdate);
-                    console.log('birth: ', birthdate);
-                }
-            });
+            if (year && month && day) {
+                var birthdate = year + '/' + month + '/' + day;
+                $('#birthdate').val(birthdate);
+                console.log('birth: ', birthdate);
+            }
         });
+    });
 </script>
 </body>
 </html>

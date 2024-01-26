@@ -20,15 +20,15 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/", "/login", "/loginProc", "/join", "/joinProcess", "/checkId", "/checkNick").permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
-                .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")
-                .anyRequest().authenticated()
+                        .requestMatchers("/wootds", "/wootds/login", "/wootds/loginProc", "/wootds/join", "/wootds/joinProcess", "/wootds/checkId", "/wootds/checkNick").permitAll()
+                        .requestMatchers("/wootds/admin").hasRole("ADMIN")
+                        .requestMatchers("/wootds/my/**").hasAnyRole("ADMIN", "USER")
+                        .anyRequest().authenticated()
                 );
 
         http
-                .formLogin((auth) -> auth.loginPage("/login")
-                        .loginProcessingUrl("/loginProc")
+                .formLogin((auth) -> auth.loginPage("/wootds/login")
+                        .loginProcessingUrl("/wootds/main")
                         .permitAll()
                 );
 
