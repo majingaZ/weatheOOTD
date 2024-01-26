@@ -41,7 +41,4 @@ public class MemberDTO {
     private String month;
     private String day;
 
-    private boolean duplicateId;
-    private boolean duplicateNick;
-
 }

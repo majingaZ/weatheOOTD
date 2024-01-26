@@ -23,17 +23,4 @@ public class MemberController {
         return "join";
     }
 
-    @PostMapping("/joinProc")
-    public String joinProcess(@Valid @ModelAttribute("memberDTO") MemberDTO memberDTO, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            model.addAttribute("errors", result.getAllErrors());
-            System.out.println("유효성 검사 이상 있음 - join 재실행");
-            return "join";
-        } else {
-            System.out.println("가입 아이디: " + memberDTO.getId());
-            memberService.joinProcess(memberDTO);
-            System.out.println("유효성 검사 이상 없음 - login 실행");
-            return "redirect:/login";
-        }
-    }
 }

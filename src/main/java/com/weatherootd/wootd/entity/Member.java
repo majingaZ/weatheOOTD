@@ -44,5 +44,4 @@ public class Member {
 
     @Column(length = 15)
     private String phone;
-
 }

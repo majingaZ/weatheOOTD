@@ -3,6 +3,7 @@ package com.weatherootd.wootd.service;
 import com.weatherootd.wootd.dto.MemberDTO;
 import com.weatherootd.wootd.entity.Member;
 import com.weatherootd.wootd.repository.MemberRepository;
+import jdk.jshell.spi.ExecutionControlProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,17 +22,17 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public boolean duplicateId (String id) {
-        return !memberRepository.idDuplicate(id);
+    public boolean isIdDuplicated(String id) {
+        return memberRepository.findById(id).isPresent();
     }
 
-    public boolean duplicateNick (String nickname) {
-        return !memberRepository.idDuplicate(nickname);
-    }
-
-    @Transactional
     @Override
-    public void joinProcess (MemberDTO memberDTO) {
+    public void joinProcess(MemberDTO memberDTO) {
+        System.out.println("joinProcess");
+        if (!isValidMemberDTO(memberDTO)) {
+            throw new IllegalArgumentException("Invalid member data");
+        }
+
         Member data = Member.builder()
                 .role(memberDTO.getRole())
                 .id_type(memberDTO.getId_type())
@@ -46,5 +47,18 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         memberRepository.save(data);
+    }
+    private boolean isValidMemberDTO(MemberDTO memberDTO) {
+        String id = memberDTO.getId();
+        String password = memberDTO.getPass();
+        if (id == null || password == null || id.length() < 6 || password.length() < 8) {
+            return false;
+        }
+
+        if (!id.matches("[a-zA-Z]+") || !password.matches("[a-zA-Z0-9]+")) {
+            return false;
+        }
+
+        return true;
     }
 }
