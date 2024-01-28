@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>map</title>
+    <style>
+        #searchBar {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 1000; /* 다른 요소 위에 표시 */
+            background-color: white;
+            padding: 2px; /* 내부 여백 */
+            border-radius: 2px; /* 테두리 모서리 둥글게 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 그림자 효과 */
+        }
+        #searchField {
+            margin-right: 5px; /* 검색 필드와 검색 버튼 사이의 간격 조정 */
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=fb9ja2rk4r"></script>
+</head>
+<body>
+<div id="map" style="width:100%; height:800px;"></div>
+<div id="searchBar">
+    <input type="text" placeholder="주소를 입력하세요" id="searchField"/>
+    <button onclick="searchAddress()">검색</button>
+</div>
+
+<script th:inline="javascript">
+    // 위치 기본값 - 네이버
+    var map = new naver.maps.Map('map', {
+        center: new naver.maps.LatLng(37.3595704, 127.105399),
+        zoom: 15,
+        mapTypeControl: true
+    });
+
+    // 마커 표시
+    var marker = new naver.maps.Marker({
+        position: new naver.maps.LatLng(37.3595704, 127.105399),
+        map: map
+    });
+
+    // 지도 클릭 시 마커 이동
+    naver.maps.Event.addListener(map, 'click', function(e) {
+        marker.setPosition(e.latlng);
+    });
+
+    // 주소 검색 후 해당 위치로 마커 이동
+    function searchAddress() {
+        var query = document.getElementById('searchField').value;
+        naver.maps.Service.geocode({
+            query: query
+        }, function (status, response) {
+            if (status !== naver.maps.Service.Status.OK) {
+                return alert('오류 발생! 검색어를 확인하세요.');
+            }
+            var result = response.v2;
+            var items = result.addresses;
+            var firstItem = items[0];
+            var point = new naver.maps.Point(firstItem.x, firstItem.y);
+            var latlng = new naver.maps.LatLng(point.x, point.y);
+
+            // 마커 위치 설정
+            marker.setPosition(latlng);
+            // 지도 중심 이동
+            map.setCenter(latlng);
+        });
+    }
+</script>
+</body>
+</html>
