@@ -1,10 +1,11 @@
 package com.weatherootd.wootd.entity;
 
-import groovyjarjarantlr4.v4.runtime.misc.NotNull;
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-
 @Entity
 @Getter
 @Builder

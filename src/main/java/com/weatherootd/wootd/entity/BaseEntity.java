@@ -1,9 +1,9 @@
 package com.weatherootd.wootd.entity;
 
-import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
