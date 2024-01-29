@@ -19,21 +19,21 @@
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=fb9ja2rk4r"></script>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=fb9ja2rk4r&submodules=geocoder"></script>
 </head>
 <body>
 <div id="map" style="width:100%; height:800px;"></div>
 <div id="searchBar">
     <input type="text" placeholder="주소를 입력하세요" id="searchField"/>
-    <button onclick="searchAddress()">검색</button>
+    <button onclick="searchAddressToCoordinate($('#searchField').val())">검색</button>
 </div>
-
+<div id="address"></div> <!-- 주소를 표시할 요소 추가 -->
 <script th:inline="javascript">
     // 위치 기본값 - 네이버
     var map = new naver.maps.Map('map', {
         center: new naver.maps.LatLng(37.3595704, 127.105399),
         zoom: 15,
-        mapTypeControl: true
+        mapTypeControl: false
     });
 
     // 마커 표시
@@ -42,31 +42,158 @@
         map: map
     });
 
+    // 정보창 생성
+    var infoWindow = new naver.maps.InfoWindow({
+        content: ''
+    });
+
     // 지도 클릭 시 마커 이동
     naver.maps.Event.addListener(map, 'click', function(e) {
         marker.setPosition(e.latlng);
+        searchCoordinateToAddress(e.latlng); // 클릭된 위치의 주소 검색 및 정보창 열기
     });
 
-    // 주소 검색 후 해당 위치로 마커 이동
-    function searchAddress() {
-        var query = document.getElementById('searchField').value;
+    // 사용자 입력 주소값 받아오기
+    function searchAddressToCoordinate(address) {
         naver.maps.Service.geocode({
-            query: query
+            query: address
         }, function (status, response) {
-            if (status !== naver.maps.Service.Status.OK) {
-                return alert('오류 발생! 검색어를 확인하세요.');
+            if (status === naver.maps.Service.Status.ERROR) {
+                return alert('Something Wrong!');
             }
-            var result = response.v2;
-            var items = result.addresses;
-            var firstItem = items[0];
-            var point = new naver.maps.Point(firstItem.x, firstItem.y);
-            var latlng = new naver.maps.LatLng(point.x, point.y);
 
-            // 마커 위치 설정
-            marker.setPosition(latlng);
-            // 지도 중심 이동
-            map.setCenter(latlng);
+            if (response.v2.meta.totalCount === 0) {
+                return alert('totalCount' + response.v2.meta.totalCount);
+            }
+
+            var htmlAddresses = [],
+                item = response.v2.addresses[0],
+                point = new naver.maps.Point(item.x, item.y);
+
+            if (item.roadAddress) {
+                htmlAddresses.push('[도로명 주소] ' + item.roadAddress);
+            }
+
+            document.getElementById('address').innerText = address; // 주소 업데이트
+
+            marker.setPosition(point);
+            map.setCenter(point);
+
+            // 정보창 열기
+            infoWindow.setContent('<div style="padding:10px;min-width:200px;line-height:150%;">' +
+                '<h4 style="margin-top:5px;">검색 주소 : ' + address + '</h4><br />' +
+                htmlAddresses.join('<br />') +
+                '</div>');
+            infoWindow.open(map, point);
         });
+    }
+
+    // 자도 클릭 시 위치정보 받기
+    function searchCoordinateToAddress(latlng) {
+        // 클릭된 위치의 좌표(latlng)를 이용하여 주소 검색
+        naver.maps.Service.reverseGeocode({
+            coords: latlng,
+            orders: [
+                naver.maps.Service.OrderType.ADDR,
+                naver.maps.Service.OrderType.ROAD_ADDR
+            ].join(',')
+        }, function(status, response) {
+            if (status === naver.maps.Service.Status.ERROR) {
+                return alert('Something Wrong!');
+            }
+
+            var items = response.v2.results,
+                address = '';
+
+            for (var i=0, ii=items.length, item, addrType; i<ii; i++) {
+                item = items[i];
+                address = makeAddress(item) || '';
+            }
+
+            document.getElementById('address').innerText = address; // 주소 업데이트
+
+            // 정보창 열기
+            infoWindow.setContent('<div style="padding:10px;min-width:200px;line-height:150%;">' +
+                '<h4 style="margin-top:5px;">' + address + '</h4><br />' +
+                '<p>날씨 정보</p>' +
+                '</div>');
+            infoWindow.open(map, latlng); // 정보창을 클릭된 위치(latlng)에 열기
+        });
+    }
+
+    // makeAddress 함수 정의
+    function makeAddress(item) {
+        if (!item) {
+            return '';
+        }
+
+        var name = item.name,
+            region = item.region,
+            land = item.land,
+            isRoadAddress = name === 'roadaddr';
+
+        var sido = '', sigugun = '', dongmyun = '', ri = '', rest = '';
+
+        if (hasArea(region.area1)) {
+            sido = region.area1.name;
+        }
+
+        if (hasArea(region.area2)) {
+            sigugun = region.area2.name;
+        }
+
+        if (hasArea(region.area3)) {
+            dongmyun = region.area3.name;
+        }
+
+        if (hasArea(region.area4)) {
+            ri = region.area4.name;
+        }
+
+        if (land) {
+            if (hasData(land.number1)) {
+                if (hasData(land.type) && land.type === '2') {
+                    rest += '산';
+                }
+
+                rest += land.number1;
+
+                if (hasData(land.number2)) {
+                    rest += ('-' + land.number2);
+                }
+            }
+
+            if (isRoadAddress === true) {
+                if (checkLastString(dongmyun, '면')) {
+                    ri = land.name;
+                } else {
+                    dongmyun = land.name;
+                    ri = '';
+                }
+
+                if (hasAddition(land.addition0)) {
+                    rest += ' ' + land.addition0.value;
+                }
+            }
+        }
+
+        return [sido, sigugun, dongmyun, ri, rest].join(' ');
+    }
+
+    function hasArea(area) {
+        return !!(area && area.name && area.name !== '');
+    }
+
+    function hasData(data) {
+        return !!(data && data !== '');
+    }
+
+    function checkLastString(word, lastString) {
+        return new RegExp(lastString + '$').test(word);
+    }
+
+    function hasAddition(addition) {
+        return !!(addition && addition.value);
     }
 </script>
 </body>
