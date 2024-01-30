@@ -25,7 +25,13 @@ public class RegionService {
         this.regionRepository = regionRepository;
     }
 
-    public void saveRegionsFromCsv(String csvFilePath) throws IOException {
+    public void saveRegionsFromCsv(String csvFilePath, int regionCount) throws IOException {
+        int count = regionRepository.findAll().size();
+        if (count >= regionCount) {
+            System.out.println("데이터 보유. 추가 작업 멈춤.");
+            return;
+        }
+
         try (
                 Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));
                 CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader());

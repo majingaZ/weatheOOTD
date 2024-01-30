@@ -24,6 +24,7 @@ public class WootdApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         String csvFilePath = "C:/Users/heeja/intelliJ-workspace/wootd/wootdfile/regionList.csv";
-        regionService.saveRegionsFromCsv(csvFilePath);
+        int regionCount = 3523;
+        regionService.saveRegionsFromCsv(csvFilePath, regionCount);
     }
 }
