@@ -5,6 +5,7 @@ import com.weatherootd.wootd.controller.WeatherDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -12,11 +13,24 @@ import java.util.List;
 @NoArgsConstructor
 public class WeatherDTO {
 
+    private List<item> items;
+
+    public void setItems(List<item> items) {
+        this.items = items;
+    }
+    public List<item> getItems() {
+        return items;
+    }
+
+    public void setItem (item item) {
+    }
+
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonDeserialize(using = WeatherDeserializer.class)
-    public static class items{
+    public static class items {
         private List<item> item;
     }
 
@@ -29,7 +43,16 @@ public class WeatherDTO {
         private String fcstDate;
         private String fcstTime;
         private String fcstValue;
-        private Long nx;
-        private Long ny;
+        private int nx;
+        private int ny;
+
+        public void setNx (int nx) {
+            this.nx = nx;
+        }
+
+        public void setNy (int ny) {
+            this.ny = ny;
+        }
     }
+
 }

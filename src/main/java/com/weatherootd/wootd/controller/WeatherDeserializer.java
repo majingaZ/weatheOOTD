@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.weatherootd.wootd.dto.WeatherDTO;
-import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,11 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
+
 public class WeatherDeserializer extends JsonDeserializer<WeatherDTO.items> {
     private final ObjectMapper objectMapper; // WeatherDTO.item을 역직렬화
 
-    public WeatherDeserializer() {
+    public WeatherDeserializer(ObjectMapper objectMapper) {
         this.objectMapper = new ObjectMapper();
     }
 

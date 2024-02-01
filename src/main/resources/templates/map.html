@@ -30,6 +30,8 @@
 </div>
 <div id="address"></div> <!-- 주소를 표시할 요소 추가 -->
 <script th:inline="javascript">
+    // var userLat = [[${userLat}]];
+    // var userLong = [[${userLong}]];
     // 위치 기본값 - 네이버
     var map = new naver.maps.Map('map', {
         center: new naver.maps.LatLng(37.3595704, 127.105399),
