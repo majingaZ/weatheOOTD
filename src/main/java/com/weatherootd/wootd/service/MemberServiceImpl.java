@@ -1,13 +1,10 @@
 package com.weatherootd.wootd.service;
 
-import com.weatherootd.wootd.dto.MemberDTO;
 import com.weatherootd.wootd.entity.Member;
 import com.weatherootd.wootd.repository.MemberRepository;
-import jdk.jshell.spi.ExecutionControlProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MemberServiceImpl implements MemberService {
@@ -23,12 +20,14 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public boolean isIdDuplicated(String id) {
-        return memberRepository.findById(id).isPresent();
+        Member member = memberRepository.findById(id);
+        return member != null;
     }
 
     @Override
     public boolean isNickDuplicated(String nickname) {
-        return memberRepository.findByNickname(nickname).isPresent();
+        Member member = memberRepository.findByNickname(nickname);
+        return member != null;
     }
 
 

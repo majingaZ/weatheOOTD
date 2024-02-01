@@ -1,22 +1,22 @@
 package com.weatherootd.wootd.controller;
 
 
-import com.weatherootd.wootd.dto.MemberDTO;
-import com.weatherootd.wootd.entity.Member;
 import com.weatherootd.wootd.repository.MemberRepository;
 import com.weatherootd.wootd.service.MemberService;
-import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
 @RestController
 @RequestMapping("/wootds")
+@RequiredArgsConstructor
 public class RestMemberController {
 
     @Autowired
