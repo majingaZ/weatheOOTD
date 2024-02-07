@@ -37,12 +37,18 @@ public class WeatherDTO {
     @Getter
     @NoArgsConstructor
     public static class item{
-        private String baseDate;
-        private String baseTime;
+        private String baseDate; // 발표 일자
+        private String baseTime; // 발표 시각
+        private String lastUpdate; // 마지막 업데이트 시간
+        private double pop; // 강수확률
+        private int pty; // 강수형태
+        private double pcp; // 1시간 강수량
+        private double reh; // 습도
+        private double sno; // 1시간 신적설
+        private double tmp; // 1시간 기온
+        private double tmn; // 일 최저기온
+        private double tmx; // 일 최고기온
         private String category;
-        private String fcstDate;
-        private String fcstTime;
-        private String fcstValue;
         private int nx;
         private int ny;
 
@@ -53,6 +59,7 @@ public class WeatherDTO {
         public void setNy (int ny) {
             this.ny = ny;
         }
+
     }
 
 }

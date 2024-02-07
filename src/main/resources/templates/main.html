@@ -6,5 +6,9 @@
 </head>
 <body>
 <h2>~MAIN PAGE~</h2>
+<div th:if="${address == null}">
+    <a href="/wootds/login">로그인</a>
+</div>
+
 </body>
 </html>

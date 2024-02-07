@@ -23,31 +23,29 @@
     <script type="text/javascript" src="http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=i16gKtFJ3wTw42INqN1DSDhnle6Ei4CZvm7hD2AzHpZxbQl9K9093cwKpqnDyR9Un1lC93P%2FnIpv9biDdWIGhQ%3D%3D&numOfRows=10&pageNo=1&base_date=20210628&base_time=0500&nx=55&ny=127"></script>
 </head>
 <body>
+
 <div id="map" style="width:100%; height:800px;"></div>
 <div id="searchBar">
     <input type="text" placeholder="주소를 입력하세요" id="searchField"/>
     <button onclick="searchAddressToCoordinate($('#searchField').val())">검색</button>
 </div>
-<div id="address"></div> <!-- 주소를 표시할 요소 추가 -->
+<div id="address"></div>
 <script th:inline="javascript">
-    // var userLat = [[${userLat}]];
-    // var userLong = [[${userLong}]];
-    // 위치 기본값 - 네이버
-    var map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(37.3595704, 127.105399),
-        zoom: 15,
-        mapTypeControl: false
-    });
+            var map = new naver.maps.Map('map', {
+                center: new naver.maps.LatLng(37.57588, 126.9768),
+                zoom: 15,
+                mapTypeControl: false
+            });
 
     // 마커 표시
     var marker = new naver.maps.Marker({
-        position: new naver.maps.LatLng(37.3595704, 127.105399),
+        position: new naver.maps.LatLng(37.57588, 126.9768),
         map: map
     });
 
     // 정보창 생성
     var infoWindow = new naver.maps.InfoWindow({
-        content: ''
+        content: ' '
     });
 
     // 지도 클릭 시 마커 이동
@@ -75,6 +73,9 @@
 
             if (item.roadAddress) {
                 htmlAddresses.push('[도로명 주소] ' + item.roadAddress);
+            } else if (item.jibunAddress) {
+                himlAddresses.push('[지번 주소] ' + item.jibunAddress);
+                var jibunAddr = item.jibunAddress;
             }
 
             document.getElementById('address').innerText = address; // 주소 업데이트
@@ -91,7 +92,7 @@
         });
     }
 
-    // 자도 클릭 시 위치정보 받기
+    // 지도 클릭 시 위치정보 받기
     function searchCoordinateToAddress(latlng) {
         // 클릭된 위치의 좌표(latlng)를 이용하여 주소 검색
         naver.maps.Service.reverseGeocode({
@@ -106,20 +107,32 @@
             }
 
             var items = response.v2.results,
-                address = '';
+                address = '',
+                htmlAddresses = [],
+                jibunAddr = '';
 
             for (var i=0, ii=items.length, item, addrType; i<ii; i++) {
                 item = items[i];
                 address = makeAddress(item) || '';
+                addrType = item.name === 'roadaddr' ? '[도로명 주소]' : '[지번 주소]';
+
+                htmlAddresses.push((i+1) +'. '+ addrType +' '+ address);
+                if (item.name === 'addr') {
+                    jibunAddr = address;
+                    console.log('지번 주소: ' + jibunAddr);
+                }
             }
 
-            document.getElementById('address').innerText = address; // 주소 업데이트
-
             // 정보창 열기
-            infoWindow.setContent('<div style="padding:10px;min-width:200px;line-height:150%;">' +
-                '<h4 style="margin-top:5px;">' + address + '</h4><br />' +
-                '<p>날씨 정보</p>' +
-                '</div>');
+            infoWindow.setContent([
+                '<div style="padding:10px;min-width:200px;line-height:250%;">',
+                htmlAddresses.join('<br />'),
+                '<h4>날씨 정보</h4>',
+                '<p>현재 기온: </p>',
+                '<p>강수 확률: </p>',
+                '</div>'
+            ].join('\n'));
+
             infoWindow.open(map, latlng); // 정보창을 클릭된 위치(latlng)에 열기
         });
     }
@@ -198,6 +211,8 @@
     function hasAddition(addition) {
         return !!(addition && addition.value);
     }
+
+    // 기상청
 </script>
 </body>
 </html>

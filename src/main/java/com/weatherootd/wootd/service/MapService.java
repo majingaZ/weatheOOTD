@@ -19,6 +19,16 @@ public class MapService {
     private static final int DEFAULT_NX = 0;
     private static final int DEFAULT_NY = 0;
 
+    // 네이버 지도용 주소
+    public String naverAddress() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userAdd = ((CustomUserDetails) authentication.getPrincipal()).getAddress();
+        System.out.println("MapService 전체 주소: " + userAdd);
+
+        return userAdd;
+    }
+
+    // 기상청용 좌표
     public WeatherDTO getDefaultMap() {
         // Spring Security에서 인증 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

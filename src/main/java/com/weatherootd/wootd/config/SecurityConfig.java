@@ -22,7 +22,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/wootds", "/wootds/login", "/wootds/loginProc", "/wootds/join", "/wootds/joinProcess", "/wootds/checkId", "/wootds/checkNick", "/wootds/map").permitAll()
+                        .requestMatchers("/wootds", "/wootds/login", "/wootds/loginProc", "/wootds/join", "/wootds/joinProcess", "/wootds/checkId", "/wootds/checkNick", "/wootds/map", "/wootds/main").permitAll()
                         .requestMatchers("/wootds/admin").hasRole("ADMIN")
                         .requestMatchers("/wootds/my/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()
@@ -56,4 +56,5 @@ public class SecurityConfig {
         handler.setDefaultTargetUrl("/wootds/map");
         return handler;
     }
+
 }

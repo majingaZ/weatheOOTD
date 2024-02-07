@@ -13,10 +13,11 @@ import lombok.Setter;
 public class Region {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String province;
-    private String district;
-    private String township;
-    private int nx;
-    private int ny;
+    private Long id; // 지역 순번
+
+    private String province; // 시, 도
+    private String district; // 시, 군, 구
+    private String township; // 동, 읍, 리
+    private int nx; // x 좌표
+    private int ny; // y 좌표
 }

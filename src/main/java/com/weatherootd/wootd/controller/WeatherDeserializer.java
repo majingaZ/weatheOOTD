@@ -43,15 +43,11 @@ public class WeatherDeserializer extends JsonDeserializer<WeatherDTO.items> {
                 list.add(item);
             if (item.getCategory().equals("SNO")) // 1시간 신적설
                 list.add(item);
-            if (item.getCategory().equals("SKY")) // 하늘 상태
-                list.add(item);
             if (item.getCategory().equals("TMP")) // 1시간 기온
                 list.add(item);
             if (item.getCategory().equals("TMN")) // 일 최저기온
                 list.add(item);
             if (item.getCategory().equals("TMX")) // 일 최고온도
-                list.add(item);
-            if (item.getCategory().equals("WSD")) // 풍속
                 list.add(item);
         }
         return new WeatherDTO.items(list);

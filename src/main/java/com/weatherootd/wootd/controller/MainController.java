@@ -44,7 +44,7 @@ public class MainController {
         }
 
         System.out.println("로그인한 사용자 정보 세션 저장 성공");
-        return "/main";
+        return "main";
     }
 
     @GetMapping("/main")
@@ -75,5 +75,13 @@ public class MainController {
 
         return "map";
     }
+
+
+//    @GetMapping("/map")
+//    public String naverAddress(Model model) {
+//        String userAdd = mapService.naverAddress();
+//        model.addAttribute("userAdd", userAdd);
+//        return "map";
+//    }
 
 }
