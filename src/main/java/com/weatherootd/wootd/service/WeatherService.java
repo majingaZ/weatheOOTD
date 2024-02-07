@@ -2,6 +2,8 @@ package com.weatherootd.wootd.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.weatherootd.wootd.dto.WeatherDTO;
+import com.weatherootd.wootd.entity.Region;
+import com.weatherootd.wootd.repository.RegionRepository;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -10,8 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.List;
 
 public class WeatherService {
+
+    RegionRepository regionRepository;
     public void WeatherApiTest() {
         ObjectMapper objectMapper = new ObjectMapper();
         RestTemplate restTemplate = new RestTemplate();
@@ -29,4 +34,9 @@ public class WeatherService {
         }
         System.out.println(ToStringBuilder.reflectionToString(response));
     }
+
+    public void findByCoord(String addrSido, String addrSigungu, String addrEmdong) {
+        List<Region> regionCoord = regionRepository.findByNxNy(addrSido, addrSigungu, addrEmdong);
+    }
+
 }

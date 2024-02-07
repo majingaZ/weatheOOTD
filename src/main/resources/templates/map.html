@@ -31,6 +31,7 @@
 </div>
 <div id="address"></div>
 <script th:inline="javascript">
+
     var map = new naver.maps.Map('map', {
         center: new naver.maps.LatLng(37.57588, 126.9768),
         zoom: 15,
@@ -214,6 +215,7 @@
         return !!(addition && addition.value);
     }
 
+    // 지번 주소 파싱
     function parseAddress(jibunAddr) {
         var sidoStr, sigunguStr, emdongStr, etc;
 
@@ -231,6 +233,24 @@
         console.log('시도: ' + addrSido);
         console.log('시군구: ' + addrSigungu);
         console.log('읍면동: ' + addrEmdong);
+
+        $.ajax({
+            type: "POST",
+            url: "parseAddress",
+            data: {
+                addrSido: addrSido,
+                addrSigungu: addrSigungu,
+                addrEmdong: addrEmdong
+            },
+            success: function (respone) {
+                getWeather()
+            }
+        });
+    }
+
+    // 기상청
+    function getWeather() {
+
     }
 </script>
 </body>

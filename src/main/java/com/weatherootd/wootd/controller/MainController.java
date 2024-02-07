@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 @Controller
 @RequestMapping("/wootds")
@@ -54,34 +53,20 @@ public class MainController {
     }
 
     @GetMapping("/map")
-    public String mapPage(Model model) {
-        // 회원정보 내 주소 좌표값
-        WeatherDTO defaultMap = mapService.getDefaultMap();
+    public String getWeather(Model model) {
+        WeatherDTO weatherDTO = mapService.getDefaultMap();
 
-        List<WeatherDTO.item> items = defaultMap.getItems();
-
-        if (defaultMap != null && defaultMap.getItems() != null && !defaultMap.getItems().isEmpty()) {
-            WeatherDTO.item item = defaultMap.getItems().get(0);
-            double latitude = item.getNx();
-            double longitude = item.getNy();
-
-            model.addAttribute("userLat", latitude);
-            model.addAttribute("userLong", longitude);
-
-            System.out.println("MainController " + latitude + " " + longitude);
+        if (weatherDTO != null && !weatherDTO.getItems().isEmpty()) {
+            model.addAttribute("nx", weatherDTO.getItems().get(0).getNx());
+            model.addAttribute("ny", weatherDTO.getItems().get(0).getNy());
+            System.out.println("MainController x 좌표: " + weatherDTO.getItems().get(0).getNx());
+            System.out.println("MainController y 좌표: " + weatherDTO.getItems().get(0).getNy());
         } else {
-            System.out.println("MainController - null");
+            // 좌표를 찾지 못한 경우 기본값 설정
+            model.addAttribute("nx", 37.57588);
+            model.addAttribute("ny", 126.9768);
         }
 
         return "map";
     }
-
-
-//    @GetMapping("/map")
-//    public String naverAddress(Model model) {
-//        String userAdd = mapService.naverAddress();
-//        model.addAttribute("userAdd", userAdd);
-//        return "map";
-//    }
-
 }
