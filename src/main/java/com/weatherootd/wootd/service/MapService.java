@@ -52,7 +52,7 @@ public class MapService {
             System.out.println("MapService 좌표 y: " + regionData[1]);
             return weatherDTO;
         } else {
-            return getDefaultMapAddress();
+            return weatherDTO = null;
         }
     }
 
