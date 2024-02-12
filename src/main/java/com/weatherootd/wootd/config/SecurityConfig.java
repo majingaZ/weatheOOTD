@@ -22,7 +22,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/wootds", "/wootds/login", "/wootds/loginProc", "/wootds/join", "/wootds/joinProcess", "/wootds/checkId", "/wootds/checkNick", "/wootds/map", "/wootds/main").permitAll()
+                        .requestMatchers("/wootds", "/wootds/login", "/wootds/loginProc", "/wootds/join", "/wootds/joinProcess", "/wootds/checkId", "/wootds/checkNick", "/wootds/main", "/wootds/list").permitAll()
                         .requestMatchers("/wootds/admin").hasRole("ADMIN")
                         .requestMatchers("/wootds/my/**").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated()
@@ -53,7 +53,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler successHandler() { // 핸들러 설정
         SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
-        handler.setDefaultTargetUrl("/wootds/map");
+        handler.setDefaultTargetUrl("/wootds/main");
         return handler;
     }
 

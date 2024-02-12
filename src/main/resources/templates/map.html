@@ -18,13 +18,12 @@
             margin-right: 5px; /* 검색 필드와 검색 버튼 사이의 간격 조정 */
         }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
     <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=fb9ja2rk4r&submodules=geocoder"></script>
-    <script type="text/javascript" src="http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=i16gKtFJ3wTw42INqN1DSDhnle6Ei4CZvm7hD2AzHpZxbQl9K9093cwKpqnDyR9Un1lC93P%2FnIpv9biDdWIGhQ%3D%3D&numOfRows=10&pageNo=1&base_date=20210628&base_time=0500&nx=55&ny=127"></script>
 </head>
 <body>
 
-<div id="map" style="width:100%; height:800px;"></div>
+<div id="map" style="width:90%; height:700px;"></div>
 <div id="searchBar">
     <input type="text" placeholder="주소를 입력하세요" id="searchField"/>
     <button onclick="searchAddressToCoordinate($('#searchField').val())">검색</button>
@@ -75,7 +74,7 @@
             if (item.roadAddress) {
                 htmlAddresses.push('[도로명 주소] ' + item.roadAddress);
             } else if (item.jibunAddress) {
-                himlAddresses.push('[지번 주소] ' + item.jibunAddress);
+                htmlAddresses.push('[지번 주소] ' + item.jibunAddress);
             }
             var jibunAddr = item.jibunAddress;
             console.log('지번 주소: ' + jibunAddr);
@@ -236,7 +235,7 @@
 
         $.ajax({
             type: "POST",
-            url: "parseAddress",
+            url: "/wootds/parseAddress",
             data: {
                 addrSido: addrSido,
                 addrSigungu: addrSigungu,
@@ -250,7 +249,8 @@
 
     // 기상청
     function getWeather() {
-
+        var nx = [[${nx}]];
+        var ny = [[${ny}]];
     }
 </script>
 </body>

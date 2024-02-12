@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Service
 @Transactional
@@ -23,6 +24,10 @@ public class RegionService {
     @Autowired
     public RegionService(RegionRepository regionRepository) {
         this.regionRepository = regionRepository;
+    }
+
+    public void findByCoord(String addrSido, String addrSigungu, String addrEmdong) {
+        List<Region> regionCoord = regionRepository.findByNxNy(addrSido, addrSigungu, addrEmdong);
     }
 
     public void saveRegionsFromCsv(String csvFilePath, int regionCount) throws IOException {

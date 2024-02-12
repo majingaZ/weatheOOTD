@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:charset="UTF-8">
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+    <th:block th:fragment="content">
+        <th:block th:fragment="setContent(content)">
+<body>
+<th:block th:if="${board.isEmpty()}">
+    <p>게시글이 없습니다.</p>
+</th:block>
+
+<th:block th:if="${not board.isEmpty()}">
+    <table border="1">
+        <thead>
+        <tr>
+            <th>글번호</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 게시글 목록 반복 -->
+        <th:block th:each="board : ${boards}">
+            <tr>
+                <td th:text="${board.board_num}"></td>
+                <td th:text="${board.baseEntityField.title}"></td>
+                <td th:text="${board.baseEntityField.writer}"></td>
+                <td th:text="${board.baseEntityField.reg_date}"></td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+</th:block>
+</th:block>
+</th:block>
+</th:block>

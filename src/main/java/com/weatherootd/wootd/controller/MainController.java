@@ -11,11 +11,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Iterator;
 
 @Controller
-@RequestMapping("/wootds")
+@RequestMapping("/wootds/main")
 public class MainController {
 
     private final MapService mapService;
@@ -25,7 +27,8 @@ public class MainController {
         this.mapService = mapService;
     }
 
-    @GetMapping("/wootds")
+
+    @GetMapping
     public String main(Model model) {
     String id = SecurityContextHolder.getContext().getAuthentication().getName();
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -40,20 +43,10 @@ public class MainController {
 
         if (model.getAttribute(id) == null) {
             System.out.println("로그인한 사용자 정보 세션 저장 실패");
+        } else {
+            System.out.println("로그인한 사용자 정보 세션 저장 성공");
         }
 
-        System.out.println("로그인한 사용자 정보 세션 저장 성공");
-        return "main";
-    }
-
-    @GetMapping("/main")
-    public String mainPage() {
-        System.out.println("main 실행");
-        return "main";
-    }
-
-    @GetMapping("/map")
-    public String getWeather(Model model) {
         WeatherDTO weatherDTO = mapService.getDefaultMap();
 
         if (weatherDTO != null && !weatherDTO.getItems().isEmpty()) {
@@ -67,6 +60,17 @@ public class MainController {
             model.addAttribute("ny", 126.9768);
         }
 
-        return "map";
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HHmm");
+        String formattedDate = now.format(dateFormatter);
+        String formattedTime = now.format(timeFormatter);
+
+        model.addAttribute("nowDate", formattedDate);
+        model.addAttribute("nowTime", formattedTime);
+
+        return "main";
     }
+
+
 }

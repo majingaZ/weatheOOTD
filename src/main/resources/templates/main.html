@@ -1,14 +1,361 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:charset="UTF-8">
-<head>
-    <meta charset="UTF-8">
-    <title>WeatherOOTD Main</title>
-</head>
-<body>
-<h2>~MAIN PAGE~</h2>
-<div th:if="${address == null}">
-    <a href="/wootds/login">로그인</a>
+<th:block th:replace="~{/layout/basic :: setContent(~{this::content} )}">
+    <th:block th:fragment="content">
+        <th:block th:fragment="setContent(content)">
+    <style>
+    #searchBar {
+        position: absolute;
+        top: 100px;
+        left: 250px;
+        z-index: 1000; /* 다른 요소 위에 표시 */
+        background-color: white;
+        padding: 2px; /* 내부 여백 */
+        border-radius: 2px; /* 테두리 모서리 둥글게 */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 그림자 효과 */
+    }
+    #searchField {
+        margin-right: 5px; /* 검색 필드와 검색 버튼 사이의 간격 조정 */
+    }
+</style>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=fb9ja2rk4r&submodules=geocoder"></script>
+
+<div>
+    <input type="text" th:type="date" name="weatherDate" id="weatherDate"/>
+
+    <select id="weatherTime">
+        <option value="">조회시간</option>
+        <!-- 시간 옵션을 동적으로 생성 -->
+        <script>
+            for (var i = 0; i < 24; i++) {
+                var hour = (i < 10) ? "0" + i : i;
+                document.getElementById("weatherTime").innerHTML += '<option value="' + hour + ':00">' + hour + ':00</option>';
+            }
+        </script>
+    </select>
 </div>
 
-</body>
-</html>
+<script th:inline="javascript">
+    var nx = [[${nx}]];
+    var ny = [[${ny}]];
+
+    var selectDate = document.getElementById("weatherDate").value;
+    var selectTime = document.getElementById("weatherTime").value;
+
+    console.log('time: ' + selectTime);
+    console.log('date: ' + selectDate);
+
+    $(document).ready(function () {
+        // 날짜 선택 박스에 datepicker 추가
+        $("#weatherDate").datepicker({
+            dateFormat: 'yyyy-mm-dd',
+            minDate: "0",
+            maxDate: "+3d",
+            onSelect: function(dateText) {
+                selectDate = dateText;
+                updateWeatherData();
+            }
+        });
+
+        // 시간 선택 박스 변경 시 데이터 업데이트
+        $("#weatherTime").change(function() {
+            selectTime = $(this).val();
+            updateWeatherData();
+        });
+
+        // 초기 데이터 로드
+        updateWeatherData();
+
+        $("#weatherTime").change(function() {
+            selectTime = $(this).val(); // selectTime 변수 값 업데이트
+            updateWeatherData();
+        });
+        function updateWeatherData() {
+            getWeather(nx, ny);
+        }
+    });
+
+    $("#weatherTime").change(function() {
+        var selectDate = $("#weatherDate").val();
+        var selectTime = $("#weatherTime").val();
+
+        $.ajax({
+            type: "POST",
+            url: "/wootds/weatherData",
+            data: {
+                weatherDate: selectDate,
+                weatherTime: selectTime
+            },
+            success: function (response) {
+                getWeather(response);
+            }
+        });
+    });
+
+    // 기상 정보 받아오기
+    function getWeather(nx, ny) {
+        $.ajax({
+            type: "POST",
+            url: "/wootds/weatherData",
+            data: {
+                nx: nx,
+                ny: ny,
+                weatherDate: selectDate,
+                weatherTime: selectTime
+            },
+            success: function (response) {
+                var weatherData = JSON.parse(response);
+                var temperature = weatherData.temperature; // 기온
+                var precipitationProbability = weatherData.precipitationProbability; // 강수 확률
+                var precipitationAmount = weatherData.precipitationAmount; // 강수량
+                var humidity = weatherData.humidity; // 습도
+
+                // 받아온 날씨 정보를 화면에 출력
+                $('#weatherInfo').html('<p>현재 기온: ' + temperature + '℃</p>' +
+                    '<p>강수 확률: ' + precipitationProbability + '%</p>' +
+                    '<p>강수량: ' + precipitationAmount + 'mm</p>' +
+                    '<p>습도: ' + humidity + '%</p>');
+            }
+        });
+    }
+
+</script>
+
+
+<!-- 네이버 지도-->
+<div id="map" style="width:90%; height:700px;"></div>
+<div id="searchBar">
+    <input type="text" placeholder="주소를 입력하세요" id="searchField"/>
+    <button onclick="searchAddressToCoordinate($('#searchField').val())">검색</button>
+</div>
+<div id="address"></div>
+<script th:inline="javascript">
+
+    var map = new naver.maps.Map('map', {
+        center: new naver.maps.LatLng(37.57588, 126.9768),
+        zoom: 15,
+        mapTypeControl: false
+    });
+
+    // 마커 표시
+    var marker = new naver.maps.Marker({
+        position: new naver.maps.LatLng(37.57588, 126.9768),
+        map: map
+    });
+
+    // 정보창 생성
+    var infoWindow = new naver.maps.InfoWindow({
+        content: ' '
+    });
+
+    // 지도 클릭 시 마커 이동
+    naver.maps.Event.addListener(map, 'click', function(e) {
+        marker.setPosition(e.latlng);
+        searchCoordinateToAddress(e.latlng); // 클릭된 위치의 주소 검색 및 정보창 열기
+    });
+
+    // 사용자 입력 주소값 받아오기
+    function searchAddressToCoordinate(address) {
+        naver.maps.Service.geocode({
+            query: address
+        }, function (status, response) {
+            if (status === naver.maps.Service.Status.ERROR) {
+                return alert('Something Wrong!');
+            }
+
+            if (response.v2.meta.totalCount === 0) {
+                return alert('totalCount' + response.v2.meta.totalCount);
+            }
+
+            var htmlAddresses = [],
+                item = response.v2.addresses[0],
+                point = new naver.maps.Point(item.x, item.y);
+
+            if (item.roadAddress) {
+                htmlAddresses.push('[도로명 주소] ' + item.roadAddress);
+            } else if (item.jibunAddress) {
+                htmlAddresses.push('[지번 주소] ' + item.jibunAddress);
+            }
+            var jibunAddr = item.jibunAddress;
+            console.log('지번 주소: ' + jibunAddr);
+            jibunAddr = parseAddress(jibunAddr);
+
+            document.getElementById('address').innerText = address; // 주소 업데이트
+
+            marker.setPosition(point); // 마커 위치 이동
+            map.setCenter(point); // 지도 위치 변경
+
+            // 정보창 열기
+            infoWindow.setContent('<div style="padding:10px;min-width:200px;line-height:150%;">' +
+                '<h4 style="margin-top:5px;">검색 주소 : ' + address + '</h4><br />' +
+                htmlAddresses.join('<br />') +
+                '</div>');
+            infoWindow.open(map, point);
+        });
+    }
+
+    // 지도 클릭 시 위치정보 받기
+    function searchCoordinateToAddress(latlng) {
+        // 클릭된 위치의 좌표(latlng)를 이용하여 주소 검색
+        naver.maps.Service.reverseGeocode({
+            coords: latlng,
+            orders: [
+                naver.maps.Service.OrderType.ADDR,
+                naver.maps.Service.OrderType.ROAD_ADDR
+            ].join(',')
+        }, function(status, response) {
+            if (status === naver.maps.Service.Status.ERROR) {
+                return alert('Something Wrong!');
+            }
+
+            var items = response.v2.results,
+                address = '',
+                htmlAddresses = [],
+                jibunAddr = '';
+
+            for (var i=0, ii=items.length, item, addrType; i<ii; i++) {
+                item = items[i];
+                address = makeAddress(item) || '';
+                addrType = item.name === 'roadaddr' ? '[도로명 주소]' : '[지번 주소]';
+
+                htmlAddresses.push((i+1) +'. '+ addrType +' '+ address);
+                if (item.name === 'addr') {
+                    jibunAddr = address;
+                    console.log('지번 주소: ' + jibunAddr);
+                    jibunAddr = parseAddress(jibunAddr);
+                }
+            }
+
+            // 정보창 열기
+            infoWindow.setContent([
+                '<div style="padding:10px;min-width:200px;line-height:250%;">',
+                htmlAddresses.join('<br />'),
+                '<h4>날씨 정보</h4>',
+                '<p>현재 기온: </p>',
+                '<p>강수 확률: </p>',
+                '</div>'
+            ].join('\n'));
+
+            infoWindow.open(map, latlng); // 정보창을 클릭된 위치(latlng)에 열기
+        });
+    }
+
+    function makeAddress(item) {
+        if (!item) {
+            return '';
+        }
+
+        var name = item.name,
+            region = item.region,
+            land = item.land,
+            isRoadAddress = name === 'roadaddr';
+
+        var sido = '', sigugun = '', dongmyun = '', ri = '', rest = '';
+
+        if (hasArea(region.area1)) {
+            sido = region.area1.name;
+        }
+
+        if (hasArea(region.area2)) {
+            sigugun = region.area2.name;
+        }
+
+        if (hasArea(region.area3)) {
+            dongmyun = region.area3.name;
+        }
+
+        if (hasArea(region.area4)) {
+            ri = region.area4.name;
+        }
+
+        if (land) {
+            if (hasData(land.number1)) {
+                if (hasData(land.type) && land.type === '2') {
+                    rest += '산';
+                }
+
+                rest += land.number1;
+
+                if (hasData(land.number2)) {
+                    rest += ('-' + land.number2);
+                }
+            }
+
+            if (isRoadAddress === true) {
+                if (checkLastString(dongmyun, '면')) {
+                    ri = land.name;
+                } else {
+                    dongmyun = land.name;
+                    ri = '';
+                }
+
+                if (hasAddition(land.addition0)) {
+                    rest += ' ' + land.addition0.value;
+                }
+            }
+        }
+
+        return [sido, sigugun, dongmyun, ri, rest].join(' ');
+    }
+
+    function hasArea(area) {
+        return !!(area && area.name && area.name !== '');
+    }
+
+    function hasData(data) {
+        return !!(data && data !== '');
+    }
+
+    function checkLastString(word, lastString) {
+        return new RegExp(lastString + '$').test(word);
+    }
+
+    function hasAddition(addition) {
+        return !!(addition && addition.value);
+    }
+
+    // 지번 주소 파싱
+    function parseAddress(jibunAddr) {
+        var sidoStr, sigunguStr, emdongStr, etc;
+
+        var addressParts = jibunAddr.split(' ');
+        if (addressParts.length >= 3) {
+            sidoStr = addressParts[0];
+            sigunguStr = addressParts[1];
+            emdongStr = addressParts[2];
+            etc = addressParts.slice(3).join(' ');
+        }
+        var addrSido = sidoStr.trim();
+        var addrSigungu = sigunguStr.trim();
+        var addrEmdong = emdongStr.trim();
+
+        console.log('시도: ' + addrSido);
+        console.log('시군구: ' + addrSigungu);
+        console.log('읍면동: ' + addrEmdong);
+
+        $.ajax({
+            type: "POST",
+            url: "/wootds/parseAddress",
+            data: {
+                addrSido: addrSido,
+                addrSigungu: addrSigungu,
+                addrEmdong: addrEmdong
+            },
+            success: function (respone) {
+                getWeather()
+            }
+        });
+    }
+
+    // 기상청
+    function getWeather() {
+        var nx = [[${nx}]];
+        var ny = [[${ny}]];
+    }
+</script>
+        </th:block>
+    </th:block>
+    </th:block>
